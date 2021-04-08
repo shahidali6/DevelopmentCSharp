@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -12,42 +13,69 @@ namespace ConsoleApp4RemoveNumbersFromString
     {
         static void Main(string[] args)
         {
-            string fileNamePath = "..\\..\\StringToConverted.txt";
-            string fileNamePathNew = "..\\..\\StringToConvertedNew.txt";
+            //Variables
+            string filePathPDFs = "SplittedPDFs";
+            string fileNamePath = "StringToConverted.txt";
+            string fileNamePathNew = "StringToConvertedNew.txt";
+            string splitter = " - ";
 
-            var tempp = Path.GetInvalidFileNameChars();
+            //Lists
+            List<string> listOfPDFFilesOrignalName = new List<string>();
+            List<string> listOfPDFfilesModifiedName = new List<string>();
 
-            List<string> listOfFileNames = new List<string>();
-            List<string> listOfFilterFileNames = new List<string>();
-            List<string> listOfFilterFileNamesWithSpaces = new List<string>();
-            var pathnale = Directory.GetCurrentDirectory();
-            var result = File.ReadAllLines(fileNamePath).ToList();
+            var executingPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
-            listOfFileNames = result;
-            foreach (var item in listOfFileNames)
+            var sortedFiles = new DirectoryInfo(Path.Combine(executingPath, filePathPDFs)).GetFiles()
+                                                  .OrderBy(f => f.LastWriteTime)
+                                                  .ToList();
+
+            string fileNameToRemove = sortedFiles[0].Name.ToString().Replace("1.pdf", string.Empty);
+
+            var readTextFile = File.ReadAllLines(Path.Combine(executingPath, fileNamePath));
+            string requestedFileName = string.Empty;
+            string requestedFileNameClient = string.Empty;
+            string requestedFileNameNumber = string.Empty;
+            string requestedFileNameDate = string.Empty;
+            for (int i = 0; i < readTextFile.Length; i++)
             {
-                listOfFilterFileNames.Add(RemoveDigits(item));
-            }
-
-            foreach (var item in listOfFilterFileNames)
-            {
-                listOfFilterFileNamesWithSpaces.Add(item);
-                listOfFilterFileNamesWithSpaces.Add(String.Empty);
-                listOfFilterFileNamesWithSpaces.Add(String.Empty);
-            }
-            using (StreamWriter sw = new StreamWriter(fileNamePathNew, false, Encoding.UTF8))
-            {
-                foreach (var item in listOfFilterFileNames)
+                int logic = (i % 3);
+                switch (logic)
                 {
-                    sw.WriteLine(item);
-                    sw.WriteLine(String.Empty);
-                    sw.WriteLine(String.Empty);
+                    case 0:
+                        requestedFileNameClient = RemoveDigitsAndInavalid(readTextFile[i]);
+                        break;
+                    case 1:
+                        requestedFileNameNumber = readTextFile[i];
+                        break;
+                    case 2:
+                        var splitterDate = readTextFile[i].Split('/');
+                        if (splitterDate.Length > 2)
+                        {
+                            splitterDate = splitterDate.Skip(1).ToArray();
+                        }
+                        requestedFileNameDate = string.Join(".", splitterDate);
+                        break;
+                    default:
+                        break;
+                }
+                if ((i % 3) == 2)
+                {
+                    listOfPDFfilesModifiedName.Add(requestedFileNameDate + splitter + requestedFileNameNumber + splitter + requestedFileNameClient);
                 }
             }
+
+            File.WriteAllLines(fileNamePathNew, listOfPDFfilesModifiedName.ToArray(), Encoding.UTF8);
         }
-        public static string RemoveDigits(string key)
+        public static string RemoveDigitsAndInavalid(string key)
         {
-            return Regex.Replace(key, @"\d", "");
+            var tempp = Path.GetInvalidFileNameChars().ToList();
+            tempp.Add('|');
+            key = Regex.Replace(key, @"\d", string.Empty);
+            foreach (var item in tempp)
+            {
+                key = key.Replace(item.ToString(), string.Empty);
+            }
+            return key;
         }
     }
 }
