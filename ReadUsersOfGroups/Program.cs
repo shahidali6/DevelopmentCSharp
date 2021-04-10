@@ -20,6 +20,10 @@ namespace ConsoleApp4ReadGroups
                 if (child.SchemaClassName == "Group")
                 {
                     Console.WriteLine("Group: " +child.Name);
+                    foreach (var childchild in child.Children)
+                    {
+                        Console.WriteLine("Group: childchild" + childchild);
+                    }
                     continue;
                 }
                 if (child.SchemaClassName == "User")
@@ -27,10 +31,10 @@ namespace ConsoleApp4ReadGroups
                     Console.WriteLine("User: " + child.Name);
                     continue;
                 }
-                Console.WriteLine(child.Name);
+                //Console.WriteLine(child.Name);
             }
             // ArrayList myGroups = GetGroupMembers("Administrators");
-            ArrayList myGroups = GetGroupMembers("Administrators");
+            ArrayList myGroups = GetGroupMembers("lalala");
             foreach (string item in myGroups)
             {
                 Console.WriteLine("Group Member: "+item);
@@ -56,6 +60,44 @@ namespace ConsoleApp4ReadGroups
             PrincipalContext oPrincipalContext = GetPrincipalContext();
 
             GroupPrincipal oGroupPrincipal = GroupPrincipal.FindByIdentity(oPrincipalContext, sGroupName);
+
+           var listofMembers =  oGroupPrincipal.Members;
+
+            Console.WriteLine("============================");
+
+            foreach (var item in listofMembers)
+            {
+                if (item.ContextType.ToString() == "Domain")
+                {
+                    Console.WriteLine("Name :" + item.Name);
+                    if (item.SamAccountName.Contains(" "))
+                    {
+                        Console.WriteLine("SamAccountName :" + item.SamAccountName+" Space===================");
+                    }
+                    else
+                    {
+                    Console.WriteLine("SamAccountName :" + item.SamAccountName);
+
+                    }
+                    Console.WriteLine("Context :" + item.Context);
+                    Console.WriteLine("ContextType :" + item.ContextType);
+                    Console.WriteLine("DisplayName :" + item.DisplayName);
+                    Console.WriteLine("DistinguishedName :" + item.DistinguishedName);
+                    Console.WriteLine("============================");
+                    List<Principal> nsdfsdf = new List<Principal>();
+
+                }
+
+                //Console.WriteLine(item.);
+                //var namama = ((UserPrincipal)item).EmailAddress;
+                //if (((UserPrincipal)item).EmailAddress != null)
+                //{
+                //    //var namama = ((UserPrincipal)item).EmailAddress;
+                //}              
+
+            }
+
+            //((UserPrincipal)(new SystemCore_EnumerableDebugView<Principal>(oGroupPrincipal.Members).Items[2])).EmailAddress;
             return oGroupPrincipal;
         }
 
