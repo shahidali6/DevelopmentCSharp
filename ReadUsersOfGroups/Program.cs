@@ -53,9 +53,20 @@ namespace ConsoleApp4ReadGroups
 
                 foreach (var user in groupName.listOfUsers)
                 {
-                    textWriter.WriteStartElement("User");
-                    textWriter.WriteString(user);
-                    textWriter.WriteEndElement();
+                    //textWriter.WriteStartElement("User");
+                    string userLower = user.ToLower();
+                    if (userLower.Contains("mossadmin240") ||
+                        userLower.Contains("sjpsrvadmin"))
+                    {
+
+                    }
+                    else
+                    {
+                        textWriter.WriteStartElement("User");
+                        textWriter.WriteString(user);
+                        textWriter.WriteEndElement();
+                    }
+
                 }
                 textWriter.WriteEndElement();
                 //textWriter.WriteEndElement();
@@ -76,8 +87,8 @@ namespace ConsoleApp4ReadGroups
                 List<string> listOfMembersOnly = new List<string>();
 
                 foreach (string item in GetGroupMembers(group))
-                {              
-                        listOfMembersOnly.Add(item);
+                {
+                    listOfMembersOnly.Add(item);
                 }
 
                 listOfGroupsUsers.groupName = group;
@@ -137,8 +148,8 @@ namespace ConsoleApp4ReadGroups
                     {
                         continue;
                     }
-                    listOUsers.Add(item.SamAccountName+"@powersoft19.com");
-;                    //Console.WriteLine("SamAccountName :" + item.SamAccountName);
+                    listOUsers.Add(item.SamAccountName + "@powersoft19.com");
+                    ;                    //Console.WriteLine("SamAccountName :" + item.SamAccountName);
                 }
             }
             return listOUsers;
