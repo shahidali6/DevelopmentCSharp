@@ -51,6 +51,7 @@ namespace C_Sharp
             File.AppendAllText(@"d:\debugged.txt", "changed: " + Environment.NewLine + changed + "==================" + Environment.NewLine);
 
             //Get the branch from the first change in the list.
+            ///string[] changeList = changed.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             string[] changeList = changed.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             string ng = string.Empty;
             loop = 1;
