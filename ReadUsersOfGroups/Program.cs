@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace ConsoleApp4ReadGroups
 {
@@ -14,7 +15,7 @@ namespace ConsoleApp4ReadGroups
     {
         static List<string> listOfSystemGroups = new List<string>();
         static List<string> listOfUsers = new List<string>();
-        List<GroupStructure> listOfGroupsUsers = new List<GroupStructure>();
+        static List<GroupStructure> listOfGroupsUsers = new List<GroupStructure>();
 
         static void Main(string[] args)
         {
@@ -23,22 +24,73 @@ namespace ConsoleApp4ReadGroups
 
             listOfSystemGroups = ExtractNameOfGroups();
 
-            listOfGroupsUsers =  ExtractUsersOfGroups(listOfSystemGroups);
+            listOfGroupsUsers = ExtractUsersOfGroups(listOfSystemGroups);
+
+            WriteXMLFile(listOfGroupsUsers, appPath + "Settings.xml");
         }
 
-        private static List<GroupStructure> ExtractUsersOfGroups(List<GroupStructure> listOfGroupNames)
+        private static void WriteXMLFile(List<GroupStructure> listOfGroupsUsers, string path)
         {
+            string folderName = Path.GetDirectoryName(path);
+            if (!Directory.Exists(folderName))
+            {
+                Directory.CreateDirectory(folderName);
+            }
+            // Create a new file in C:\\ dir  
+            XmlTextWriter textWriter = new XmlTextWriter(path, Encoding.UTF8);
+
+            textWriter.Formatting = Formatting.Indented;
+
+            textWriter.WriteStartDocument();
+            textWriter.WriteStartElement("Groups");
+            //textWriter.WriteComment("First Comment XmlTextWriter Sample Example");
+
+            foreach (var groupName in listOfGroupsUsers)
+            {
+                //textWriter.WriteStartElement("Groups");
+                string groupWithoutSpaces = groupName.groupName.Replace(" ", string.Empty);
+                textWriter.WriteStartElement(groupWithoutSpaces);
+
+                foreach (var user in groupName.listOfUsers)
+                {
+                    textWriter.WriteStartElement("User");
+                    textWriter.WriteString(user);
+                    textWriter.WriteEndElement();
+                }
+                textWriter.WriteEndElement();
+                //textWriter.WriteEndElement();
+            }
+            textWriter.WriteEndElement();
+            textWriter.WriteEndDocument();
+            textWriter.Close();
+        }
+
+        private static List<GroupStructure> ExtractUsersOfGroups(List<string> listOfGroupNames)
+        {
+            List<GroupStructure> listOfGroupsUsersInternal = new List<GroupStructure>();
+
             // ArrayList myGroups = GetGroupMembers("Administrators");
             foreach (var group in listOfGroupNames)
             {
-                Console.WriteLine("Group Name: "+group);
+                GroupStructure listOfGroupsUsers = new GroupStructure();
+                List<string> listOfMembersOnly = new List<string>();
+
+                //Console.WriteLine("Group Name: "+group);
                 ArrayList myGroups = GetGroupMembers(group);
                 foreach (string item in myGroups)
                 {
-                    Console.WriteLine("Group Member: " + item);
-                } 
+                    if (!item.Contains(" "))
+                    {
+                        listOfMembersOnly.Add(item);
+                    }
+                }
+
+                listOfGroupsUsers.groupName = group;
+                listOfGroupsUsers.listOfUsers = listOfMembersOnly;
+
+                listOfGroupsUsersInternal.Add(listOfGroupsUsers);
             }
-            Console.ReadLine();
+            return listOfGroupsUsersInternal;
         }
 
         private static List<string> ExtractNameOfGroups()
@@ -50,20 +102,8 @@ namespace ConsoleApp4ReadGroups
                 if (child.SchemaClassName == "Group")
                 {
                     listOfGroups.Add(child.Name);
-                    Console.WriteLine("Group: " + child.Name);
-                    foreach (var childchild in child.Children)
-                    {
-                        Console.WriteLine("Group: childchild" + childchild);
-                    }
                     continue;
                 }
-                if (child.SchemaClassName == "User")
-                {
-                    listOfUsers.Add(child.Name);
-                    Console.WriteLine("User: " + child.Name);
-                    continue;
-                }
-                //Console.WriteLine(child.Name);
             }
             return listOfGroups;
         }
@@ -93,43 +133,22 @@ namespace ConsoleApp4ReadGroups
 
             GroupPrincipal oGroupPrincipal = GroupPrincipal.FindByIdentity(oPrincipalContext, sGroupName);
 
-           var listofMembers =  oGroupPrincipal.Members;
+            var listofMembers = oGroupPrincipal.Members;
 
-            Console.WriteLine("============================");
+            //Console.WriteLine("============================");
 
             foreach (var item in listofMembers)
             {
                 if (item.ContextType.ToString() == "Domain")
                 {
-                    Console.WriteLine("Name :" + item.Name);
+                    //Console.WriteLine("Name :" + item.Name);
                     if (item.SamAccountName.Contains(" "))
                     {
-                        Console.WriteLine("SamAccountName :" + item.SamAccountName+" Space===================");
+                        continue;
                     }
-                    else
-                    {
                     Console.WriteLine("SamAccountName :" + item.SamAccountName);
-
-                    }
-                    Console.WriteLine("Context :" + item.Context);
-                    Console.WriteLine("ContextType :" + item.ContextType);
-                    Console.WriteLine("DisplayName :" + item.DisplayName);
-                    Console.WriteLine("DistinguishedName :" + item.DistinguishedName);
-                    Console.WriteLine("============================");
-                    List<Principal> nsdfsdf = new List<Principal>();
-
                 }
-
-                //Console.WriteLine(item.);
-                //var namama = ((UserPrincipal)item).EmailAddress;
-                //if (((UserPrincipal)item).EmailAddress != null)
-                //{
-                //    //var namama = ((UserPrincipal)item).EmailAddress;
-                //}              
-
             }
-
-            //((UserPrincipal)(new SystemCore_EnumerableDebugView<Principal>(oGroupPrincipal.Members).Items[2])).EmailAddress;
             return oGroupPrincipal;
         }
 
@@ -138,6 +157,5 @@ namespace ConsoleApp4ReadGroups
             PrincipalContext oPrincipalContext = new PrincipalContext(ContextType.Machine);
             return oPrincipalContext;
         }
-
     }
 }
