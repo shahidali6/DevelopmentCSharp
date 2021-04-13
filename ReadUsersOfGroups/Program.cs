@@ -14,7 +14,6 @@ namespace ConsoleApp4ReadGroups
     class Program
     {
         static List<string> listOfSystemGroups = new List<string>();
-        static List<string> listOfUsers = new List<string>();
         static List<GroupStructure> listOfGroupsUsers = new List<GroupStructure>();
 
         static void Main(string[] args)
@@ -50,6 +49,7 @@ namespace ConsoleApp4ReadGroups
                 //textWriter.WriteStartElement("Groups");
                 string groupWithoutSpaces = groupName.groupName.Replace(" ", string.Empty);
                 textWriter.WriteStartElement(groupWithoutSpaces);
+                textWriter.WriteComment("Actual Group Name: " + groupName.groupName);
 
                 foreach (var user in groupName.listOfUsers)
                 {
@@ -75,14 +75,9 @@ namespace ConsoleApp4ReadGroups
                 GroupStructure listOfGroupsUsers = new GroupStructure();
                 List<string> listOfMembersOnly = new List<string>();
 
-                //Console.WriteLine("Group Name: "+group);
-                ArrayList myGroups = GetGroupMembers(group);
-                foreach (string item in myGroups)
-                {
-                    if (!item.Contains(" "))
-                    {
+                foreach (string item in GetGroupMembers(group))
+                {              
                         listOfMembersOnly.Add(item);
-                    }
                 }
 
                 listOfGroupsUsers.groupName = group;
@@ -113,22 +108,18 @@ namespace ConsoleApp4ReadGroups
             public string groupName;
             public List<string> listOfUsers;
         }
-        public static ArrayList GetGroupMembers(string sGroupName)
+        public static List<string> GetGroupMembers(string sGroupName)
         {
-            ArrayList myItems = new ArrayList();
-            GroupPrincipal oGroupPrincipal = GetGroup(sGroupName);
-            var test = oGroupPrincipal.UserPrincipalName;
-            PrincipalSearchResult<Principal> oPrincipalSearchResult = oGroupPrincipal.GetMembers();
+            List<string> listOfUSerssss = new List<string>();
 
-            foreach (Principal oResult in oPrincipalSearchResult)
-            {
-                myItems.Add(oResult.SamAccountName);
-            }
-            return myItems;
+            listOfUSerssss = GetGroup(sGroupName);
+
+            return listOfUSerssss;
         }
 
-        public static GroupPrincipal GetGroup(string sGroupName)
+        public static List<string> GetGroup(string sGroupName)
         {
+            List<string> listOUsers = new List<string>();
             PrincipalContext oPrincipalContext = GetPrincipalContext();
 
             GroupPrincipal oGroupPrincipal = GroupPrincipal.FindByIdentity(oPrincipalContext, sGroupName);
@@ -146,10 +137,11 @@ namespace ConsoleApp4ReadGroups
                     {
                         continue;
                     }
-                    Console.WriteLine("SamAccountName :" + item.SamAccountName);
+                    listOUsers.Add(item.SamAccountName+"@powersoft19.com");
+;                    //Console.WriteLine("SamAccountName :" + item.SamAccountName);
                 }
             }
-            return oGroupPrincipal;
+            return listOUsers;
         }
 
         public static PrincipalContext GetPrincipalContext()
