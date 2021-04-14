@@ -12,57 +12,82 @@ namespace C_Sharp
     public class PostCommit
     {
         private static string svnpath = Environment.GetEnvironmentVariable("VISUALSVN_SERVER");
+        private static string addedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #198754; color: white; border-radius: 5px;\"> Added</span>";
+        private static string modifiedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #FFC107; border-radius: 5px;\"> Modified</span>";
+        private static string deletedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #DC3545; color: white; border-radius: 5px;\"> Deleted</span>";
         private static int Main(string[] args)
         {
-            string extra = Environment.NewLine + "==================" + Environment.NewLine;
-            string temp = svnpath + extra;
-            File.WriteAllText(@"d:\debugged.txt", "Path " + temp);
-            int loop = 1;
-            foreach (var item in args)
+            WriteDebuggLog("Path: " + svnpath);
+
+            int loopcounter = 0;
+            foreach (var arg in args)
             {
-                Console.WriteLine(item);
-                File.AppendAllText(@"d:\debugged.txt", "args " + loop + " " + item + Environment.NewLine);
-                loop++;
+                WriteDebuggLog("args" + loopcounter + ": " + arg);
+                loopcounter++;
             }
-            File.AppendAllText(@"d:\debugged.txt", "==================" + Environment.NewLine);
-            //Check if revision number and revision path have been supplied.
+
             if (args.Length < 2)
             {
-                Console.Error.WriteLine("Invalid arguments sent - <REPOSITORY> <REV> required");
-                File.AppendAllText(@"d:\debugged.txt", "Invalid arguments sent - <REPOSITORY> <REV> required" + extra);
+                WriteDebuggLog("Invalid arguments sent - <REPOSITORY> <REV> required");
                 return 1;
             }
-
-            //Check if VisualSVN is installed.
             if (string.IsNullOrEmpty(svnpath))
             {
-                Console.Error.WriteLine("VISUALSVN_SERVER environment variable does not exist. VisualSVN installed?");
-                File.AppendAllText(@"d:\debugged.txt", "VISUALSVN_SERVER environment variable does not exist. VisualSVN installed?" + extra);
+                WriteDebuggLog("VISUALSVN_SERVER environment variable does not exist. VisualSVN installed?");
                 return 1;
             }
-
 
             //Get the required information using SVNLook.
             string author = SVNLook("author", args);
-            File.AppendAllText(@"d:\debugged.txt", "author: " + author + "==================" + Environment.NewLine);
+            WriteDebuggLog("SVNLook(\"author\", args): " + author.Trim());
+
             string message = SVNLook("log", args);
-            File.AppendAllText(@"d:\debugged.txt", "message: " + message.Trim() + Environment.NewLine+"==================" + Environment.NewLine);
+            WriteDebuggLog("SVNLook(\"log\", args): " + message.Trim());
+
             string changed = SVNLook("changed", args);
-            File.AppendAllText(@"d:\debugged.txt", "changed: " + Environment.NewLine + changed + "==================" + Environment.NewLine);
+            WriteDebuggLog("SVNLook(\"changed\", args): " + changed.Trim());
 
             //Get the branch from the first change in the list.
             ///string[] changeList = changed.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             string[] changeList = changed.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-            string ng = string.Empty;
-            loop = 1;
-            foreach (var item in changeList)
+
+            List<string> listOfChanges = new List<string>();
+            listOfChanges.Add("<ul>");
+            loopcounter = 0;
+            foreach (var change in changeList)
             {
-                ng += "ChangeList: " + loop +": "+ item + Environment.NewLine;
-                loop++;
+                if (change.Length > 0)
+                {
+                    //listOfChanges.Add("<li>" + change + "</li>");
+
+                    string firstLetter = change.ToLower().Remove(1);
+                    string removeStrating4Letters = change.Remove(0,4);
+
+                    switch (firstLetter)
+                    {
+                        case "u":
+                            listOfChanges.Add(modifiedLegend + removeStrating4Letters + "</li>");
+                            break;
+                        case "a":
+                            listOfChanges.Add(addedLegend + removeStrating4Letters + "</li>");
+                            break;
+                        case "d":
+                            listOfChanges.Add(deletedLegend + removeStrating4Letters + "</li>");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                WriteDebuggLog("change " + loopcounter + ": " + change);
             }
-            File.AppendAllText(@"d:\debugged.txt", "Full String: " + Environment.NewLine + ng.Trim() + extra);
+            loopcounter++;
+            listOfChanges.Add("</ul>");
+
+            string newOutput = ListToString(listOfChanges);
+
             string changeFirst = changeList[0].Remove(0, 4);
-            File.AppendAllText(@"d:\debugged.txt", "Change First: " + changeFirst + extra);
+
+            WriteDebuggLog("First change: " + changeFirst);
 
 
             int changeFirstSlash = changeFirst.IndexOf("/");
@@ -77,7 +102,8 @@ namespace C_Sharp
             //Get the email template and fill it in. This template can be anywhere, and can be a .HTML file
             //for more control over the structure.
             string emailTemplatePath = @"d:\svnnotification.html";
-            string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, changed);
+            //string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, changed);
+            string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, newOutput);
 
             //Construct the email that will be sent. You can use the .IsBodyHtml property if you are
             //using an HTML template.
@@ -96,8 +122,35 @@ namespace C_Sharp
             mailClient.EnableSsl = true;
 
             mailClient.Send(mm);
-            File.AppendAllText(@"d:\debugged.txt", "Reach at the end of Code" + extra);
+            WriteDebuggLog("Reach at the end of Code" + Environment.NewLine + "===================================================================");
             return 0;
+        }
+
+        private static string ListToString(List<string> listOfChanges)
+        {
+            string newString = string.Empty;
+            foreach (var item in listOfChanges)
+            {
+                newString += item;
+            }
+            return newString;
+        }
+
+        private static void WriteDebuggLog(string content)
+        {
+            string roamingFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.None);
+            //string roamingFolderPath = @"d:\";
+            string appPath = Path.Combine(roamingFolderPath, "VisualSVNHook\\");
+
+            if (!Directory.Exists(appPath))
+            {
+                Directory.CreateDirectory(appPath);
+            }
+
+            string fileName = DateTime.Now.ToString("yyyyMMdd");
+
+            string timeStamp = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+            File.AppendAllText(appPath + fileName + ".txt", timeStamp + ": " + content + Environment.NewLine);
         }
 
         /// <summary>
@@ -109,13 +162,14 @@ namespace C_Sharp
         /// <returns>The output of svnlook.exe</returns>
         private static string SVNLook(string command, string[] args)
         {
-            string extra = Environment.NewLine + "==================" + Environment.NewLine;
             StringBuilder output = new StringBuilder();
             Process procMessage = new Process();
 
             //Start svnlook.exe in a process and pass it the required command-line args.
-            procMessage.StartInfo = new ProcessStartInfo(svnpath + @"bin\svnlook.exe", String.Format(@"{0} ""{1}"" -r ""{2}""", command, args[0], args[1]));
-            File.AppendAllText(@"d:\debugged.txt", String.Format(@"{0} ""{1}"" -r ""{2}""", "Full args: " + command, args[0], args[1]) + extra);
+            string formatedString = String.Format(@"{0} ""{1}"" -r ""{2}""", command, args[0], args[1]);
+            //procMessage.StartInfo = new ProcessStartInfo(svnpath + @"bin\svnlook.exe", String.Format(@"{0} ""{1}"" -r ""{2}""", command, args[0], args[1]));
+            procMessage.StartInfo = new ProcessStartInfo(svnpath + @"bin\svnlook.exe", formatedString);
+            WriteDebuggLog("Formated String: " + formatedString);
             procMessage.StartInfo.RedirectStandardOutput = true;
             procMessage.StartInfo.UseShellExecute = false;
             procMessage.Start();
