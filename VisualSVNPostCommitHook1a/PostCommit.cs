@@ -12,9 +12,14 @@ namespace C_Sharp
     public class PostCommit
     {
         private static string svnpath = Environment.GetEnvironmentVariable("VISUALSVN_SERVER");
-        private static string addedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #198754; color: white; border-radius: 5px;\"> Added</span>";
-        private static string modifiedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #FFC107; border-radius: 5px;\"> Modified</span>";
-        private static string deletedLegend = "<li style=\"padding: 3px;\"><span style=\"padding: 3px; margin: 1px 4px 1px 3px; width: 75px; background-color: #DC3545; color: white; border-radius: 5px;\"> Deleted</span>";
+        private static string addedLegend = "<span style=\"background-color: #198754; color: white;\"> Added</span>";
+        private static string modifiedLegend = "<span style=\"background-color: #FFC107;\"> Modified</span>";
+        private static string deletedLegend = "<span style=\"background-color: #DC3545; color: white;\"> Deleted</span>";
+
+        private static string addedIcon = "<img src=\"https://img.icons8.com/color/20/000000/add--v1.png\" />";
+        private static string deletedIcon = "<img src=\"https://img.icons8.com/flat-round/17/000000/delete-sign.png\" />";
+        private static string modifiedIcon = "<img src=\"https://img.icons8.com/color/17/000000/edit--v1.png\"/>";
+
         private static int Main(string[] args)
         {
             WriteDebuggLog("Path: " + svnpath);
@@ -52,38 +57,42 @@ namespace C_Sharp
             string[] changeList = changed.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
             List<string> listOfChanges = new List<string>();
-            listOfChanges.Add("<ul>");
+
+            listOfChanges.Add("<ol>");
             loopcounter = 0;
             foreach (var change in changeList)
             {
                 if (change.Length > 0)
                 {
-                    //listOfChanges.Add("<li>" + change + "</li>");
+                    listOfChanges.Add("<li>");
 
                     string firstLetter = change.ToLower().Remove(1);
-                    string removeStrating4Letters = change.Remove(0,4);
+                    string removeStrating4Letters = change.Remove(0, 4);
 
                     switch (firstLetter)
                     {
                         case "u":
-                            listOfChanges.Add(modifiedLegend + removeStrating4Letters + "</li>");
+                            listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + modifiedIcon + "</li>");
                             break;
                         case "a":
-                            listOfChanges.Add(addedLegend + removeStrating4Letters + "</li>");
+                            listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + addedIcon + "</li>");
                             break;
                         case "d":
-                            listOfChanges.Add(deletedLegend + removeStrating4Letters + "</li>");
+                            listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + deletedIcon + "</li>");
                             break;
                         default:
                             break;
                     }
                 }
                 WriteDebuggLog("change " + loopcounter + ": " + change);
+
+                loopcounter++;
             }
-            loopcounter++;
-            listOfChanges.Add("</ul>");
+
+            listOfChanges.Add("</ol>");
 
             string newOutput = ListToString(listOfChanges);
+            WriteDebuggLog("ListToString: " + newOutput);
 
             string changeFirst = changeList[0].Remove(0, 4);
 
@@ -102,6 +111,8 @@ namespace C_Sharp
             //Get the email template and fill it in. This template can be anywhere, and can be a .HTML file
             //for more control over the structure.
             string emailTemplatePath = @"d:\svnnotification.html";
+
+
             //string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, changed);
             string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, newOutput);
 
@@ -122,8 +133,30 @@ namespace C_Sharp
             mailClient.EnableSsl = true;
 
             mailClient.Send(mm);
+
+            mm.Dispose();
+            mailClient.Dispose();
             WriteDebuggLog("Reach at the end of Code" + Environment.NewLine + "===================================================================");
             return 0;
+        }
+
+        private static string AddHTMLSpaces(int count)
+        {
+            string fullString = string.Empty;
+            for (int i = 0; i < count; i++)
+            {
+                fullString += "&nbsp;";
+            }
+            return fullString;
+        }
+        private static string AddHTMLBreakes(int count)
+        {
+            string fullString = string.Empty;
+            for (int i = 0; i < count; i++)
+            {
+                fullString += "<br>";
+            }
+            return fullString;
         }
 
         private static string ListToString(List<string> listOfChanges)
