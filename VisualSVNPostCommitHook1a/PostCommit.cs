@@ -6,19 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net.Mail;
+using System.Reflection;
 
 namespace C_Sharp
 {
     public class PostCommit
     {
-        private static string svnpath = Environment.GetEnvironmentVariable("VISUALSVN_SERVER");
-        private static string addedLegend = "<span style=\"background-color: #198754; color: white;\"> Added</span>";
-        private static string modifiedLegend = "<span style=\"background-color: #FFC107;\"> Modified</span>";
-        private static string deletedLegend = "<span style=\"background-color: #DC3545; color: white;\"> Deleted</span>";
+        private static readonly string svnpath = Environment.GetEnvironmentVariable("VISUALSVN_SERVER");
+        private static readonly string addedLegend = "<span style=\"background-color: #198754; color: white;\"> Added</span>";
+        private static readonly string modifiedLegend = "<span style=\"background-color: #FFC107;\"> Modified</span>";
+        private static readonly string deletedLegend = "<span style=\"background-color: #DC3545; color: white;\"> Deleted</span>";
 
-        private static string addedIcon = "<img src=\"https://img.icons8.com/color/20/000000/add--v1.png\" />";
-        private static string deletedIcon = "<img src=\"https://img.icons8.com/flat-round/17/000000/delete-sign.png\" />";
-        private static string modifiedIcon = "<img src=\"https://img.icons8.com/color/17/000000/edit--v1.png\"/>";
+        private static readonly string addedIcon = "<img src=\"https://img.icons8.com/color/18/000000/add--v1.png\" />";
+        private static readonly string deletedIcon = "<img src=\"https://img.icons8.com/flat-round/15/000000/delete-sign.png\" />";
+        private static readonly string modifiedIcon = "<img src=\"https://img.icons8.com/color/15/000000/edit--v1.png\"/>";
 
         private static int Main(string[] args)
         {
@@ -108,9 +109,16 @@ namespace C_Sharp
             //Get the name of the repository from the first argument, which is the repo path.
             string repoName = args[0].ToString().Substring(args[0].LastIndexOf(@"\") + 1);
 
+            //Copy template file before executing
+             string sourcePath =  Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string emailTemplateName = "svnnotification.html";
+
+            File.Copy(Path.Combine(sourcePath, emailTemplateName), Path.Combine(CommonFolderPath(), emailTemplateName), true);
+
             //Get the email template and fill it in. This template can be anywhere, and can be a .HTML file
             //for more control over the structure.
-            string emailTemplatePath = @"d:\svnnotification.html";
+            string emailTemplatePath = Path.Combine(CommonFolderPath(), emailTemplateName);
 
 
             //string emailTemplate = string.Format(File.ReadAllText(emailTemplatePath), author, message, changed);
@@ -119,17 +127,26 @@ namespace C_Sharp
             //Construct the email that will be sent. You can use the .IsBodyHtml property if you are
             //using an HTML template.
             string subject = string.Format("[Commit Notification] commit number {0} for {1}", args[1], repoName);
-            MailMessage mm = new MailMessage("msaddique@powersoft19.com", "msaddique@powersoft19.com");
-
-            mm.IsBodyHtml = true;
-            mm.Body = emailTemplate;
-            mm.Subject = subject;
+            MailMessage mm = new MailMessage("msaddique@powersoft19.com", "msaddique@powersoft19.com")
+            {
+                IsBodyHtml = true,
+                Body = emailTemplate,
+                Subject = subject
+            };
 
             //Define your mail client. I am using Gmail here as the SMTP server, but you could
             //use IIS or Amazon SES or whatever you want.
-            SmtpClient mailClient = new SmtpClient("mail2.powersoft19.com");
-            mailClient.Port = 587;
-            mailClient.Credentials = new System.Net.NetworkCredential("msaddique", "shahid@lahore");
+            SmtpClient mailClient = new SmtpClient("mail2.powersoft19.com")
+            {
+                Port = 587
+            };
+
+            string fileName = Path.Combine(CommonFolderPath(),"pass.txt");
+            //string pass = EncodePasswordToBase64("shahid@lahore");
+
+            //File.WriteAllText(fileName, pass);
+
+            mailClient.Credentials = new System.Net.NetworkCredential("msaddique", DecodeFrom64(File.ReadAllText(fileName)));
             mailClient.EnableSsl = true;
 
             mailClient.Send(mm);
@@ -171,19 +188,26 @@ namespace C_Sharp
 
         private static void WriteDebuggLog(string content)
         {
-            string roamingFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.None);
-            //string roamingFolderPath = @"d:\";
-            string appPath = Path.Combine(roamingFolderPath, "VisualSVNHook\\");
+            string appPath = CommonFolderPath();
+
+            string fileName = DateTime.Now.ToString("yyyyMMdd");
+
+            string timeStamp = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
+            File.AppendAllText(appPath + fileName + ".txt", timeStamp + ": " + content + Environment.NewLine);
+        }
+
+        private static string CommonFolderPath()
+        {
+            string commonApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.None);
+
+            string appPath = Path.Combine(commonApplicationData, "VisualSVNHook\\");
 
             if (!Directory.Exists(appPath))
             {
                 Directory.CreateDirectory(appPath);
             }
 
-            string fileName = DateTime.Now.ToString("yyyyMMdd");
-
-            string timeStamp = DateTime.Now.ToString("yyyy-MM-dd H:mm:ss");
-            File.AppendAllText(appPath + fileName + ".txt", timeStamp + ": " + content + Environment.NewLine);
+            return appPath;
         }
 
         /// <summary>
@@ -231,7 +255,7 @@ namespace C_Sharp
                 throw new Exception("Error in base64Encode" + ex.Message);
             }
         } //this function Convert to Decord your Password
-        public string DecodeFrom64(string encodedData)
+        public static string DecodeFrom64(string encodedData)
         {
             UTF8Encoding encoder = new UTF8Encoding();
             Decoder utf8Decode = encoder.GetDecoder();
