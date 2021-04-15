@@ -17,9 +17,12 @@ namespace C_Sharp
         private static readonly string modifiedLegend = "<span style=\"background-color: #FFC107;\"> Modified</span>";
         private static readonly string deletedLegend = "<span style=\"background-color: #DC3545; color: white;\"> Deleted</span>";
 
-        private static readonly string addedIcon = "<img src=\"https://img.icons8.com/color/18/000000/add--v1.png\" />";
-        private static readonly string deletedIcon = "<img src=\"https://img.icons8.com/flat-round/15/000000/delete-sign.png\" />";
-        private static readonly string modifiedIcon = "<img src=\"https://img.icons8.com/color/15/000000/edit--v1.png\"/>";
+        //private static readonly string addedIcon = "<img src=\"https://img.icons8.com/color/18/000000/add--v1.png\" />";
+        //private static readonly string deletedIcon = "<img src=\"https://img.icons8.com/flat-round/15/000000/delete-sign.png\" />";
+        //private static readonly string modifiedIcon = "<img src=\"https://img.icons8.com/color/15/000000/edit--v1.png\"/>";
+        private static readonly string addedIcon = "<span style=\"color: green;\">&#10004;</span>";
+        private static readonly string deletedIcon = "<span style=\"color: red;\">&#10006;</span>";
+        private static readonly string modifiedIcon = "<span style=\"color: orange;\">&#9888;</span>";
 
         private static int Main(string[] args)
         {
@@ -59,7 +62,7 @@ namespace C_Sharp
 
             List<string> listOfChanges = new List<string>();
 
-            listOfChanges.Add("<ol>");
+            listOfChanges.Add("<ul>");
             loopcounter = 0;
             foreach (var change in changeList)
             {
@@ -76,10 +79,10 @@ namespace C_Sharp
                             listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + modifiedIcon + "</li>");
                             break;
                         case "a":
-                            listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + addedIcon + "</li>");
+                            listOfChanges.Add(removeStrating4Letters+ AddHTMLSpaces(2) + addedIcon + " </li>");
                             break;
                         case "d":
-                            listOfChanges.Add(removeStrating4Letters + AddHTMLSpaces(2) + deletedIcon + "</li>");
+                            listOfChanges.Add("<strike>" + removeStrating4Letters + "</strike>" + AddHTMLSpaces(2) + deletedIcon + "</li>");
                             break;
                         default:
                             break;
@@ -90,7 +93,7 @@ namespace C_Sharp
                 loopcounter++;
             }
 
-            listOfChanges.Add("</ol>");
+            listOfChanges.Add("</ul>");
 
             string newOutput = ListToString(listOfChanges);
             WriteDebuggLog("ListToString: " + newOutput);
@@ -110,7 +113,7 @@ namespace C_Sharp
             string repoName = args[0].ToString().Substring(args[0].LastIndexOf(@"\") + 1);
 
             //Copy template file before executing
-             string sourcePath =  Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string sourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string emailTemplateName = "svnnotification.html";
 
@@ -141,8 +144,8 @@ namespace C_Sharp
                 Port = 587
             };
 
-            string fileName = Path.Combine(CommonFolderPath(),"pass.txt");
-            //string pass = EncodePasswordToBase64("shahid@lahore");
+            string fileName = Path.Combine(CommonFolderPath(), "pass.txt");
+            //string pass = EncodePasswordToBase64("");
 
             //File.WriteAllText(fileName, pass);
 
