@@ -12,6 +12,7 @@ namespace C_Sharp
 {
     public class PostCommit
     {
+        private static string repositoryName = string.Empty;
         private static readonly string svnpath = Environment.GetEnvironmentVariable("VISUALSVN_SERVER");
         private static readonly string addedLegend = "<span style=\"background-color: #198754; color: white;\"> Added</span>";
         private static readonly string modifiedLegend = "<span style=\"background-color: #FFC107;\"> Modified</span>";
@@ -102,15 +103,16 @@ namespace C_Sharp
 
             WriteDebuggLog("First change: " + changeFirst);
 
+            //Get the name of the repository from the first argument, which is the repo path.
+            repositoryName = args[0].ToString().Substring(args[0].LastIndexOf(@"\") + 1);
 
             int changeFirstSlash = changeFirst.IndexOf("/");
             if (changeFirstSlash > 0)
             {
-                string repoBranch = changeFirst.Substring(0, changeFirstSlash);
+                repositoryName += " "+changeFirst.Substring(0, changeFirstSlash);
             }
 
-            //Get the name of the repository from the first argument, which is the repo path.
-            string repoName = args[0].ToString().Substring(args[0].LastIndexOf(@"\") + 1);
+            WriteDebuggLog("Repository Name: " + repositoryName);
 
             //Copy template file before executing
             string sourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -129,8 +131,8 @@ namespace C_Sharp
 
             //Construct the email that will be sent. You can use the .IsBodyHtml property if you are
             //using an HTML template.
-            string subject = string.Format("[Commit Notification] commit number {0} for {1}", args[1], repoName);
-            MailMessage mm = new MailMessage("msaddique@powersoft19.com", "msaddique@powersoft19.com")
+            string subject = string.Format("[SVN Notification] Repo: {0} - Rev. {1}",repositoryName, args[1]);
+            MailMessage mm = new MailMessage("mossadmin240@powersoft19.com", "msaddique@powersoft19.com")
             {
                 IsBodyHtml = true,
                 Body = emailTemplate,
@@ -141,7 +143,7 @@ namespace C_Sharp
             //use IIS or Amazon SES or whatever you want.
             SmtpClient mailClient = new SmtpClient("mail2.powersoft19.com")
             {
-                Port = 587
+                Port = 25
             };
 
             string fileName = Path.Combine(CommonFolderPath(), "pass.txt");
@@ -149,7 +151,7 @@ namespace C_Sharp
 
             //File.WriteAllText(fileName, pass);
 
-            mailClient.Credentials = new System.Net.NetworkCredential("msaddique", DecodeFrom64(File.ReadAllText(fileName)));
+            //mailClient.Credentials = new System.Net.NetworkCredential("msaddique", DecodeFrom64(File.ReadAllText(fileName)));
             mailClient.EnableSsl = true;
 
             mailClient.Send(mm);
