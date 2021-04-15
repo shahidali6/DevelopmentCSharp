@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Net.Mail;
 using System.Reflection;
+using System.Xml;
 
 namespace C_Sharp
 {
@@ -27,6 +28,8 @@ namespace C_Sharp
 
         private static int Main(string[] args)
         {
+            ReadXMLFileToEmails();
+
             WriteDebuggLog("Path: " + svnpath);
 
             int loopcounter = 0;
@@ -132,6 +135,8 @@ namespace C_Sharp
             //Construct the email that will be sent. You can use the .IsBodyHtml property if you are
             //using an HTML template.
             string subject = string.Format("[SVN Notification] Repo: {0} - Rev. {1}",repositoryName, args[1]);
+
+            ReadXMLFileToEmails();
             MailMessage mm = new MailMessage("mossadmin240@powersoft19.com", "msaddique@powersoft19.com")
             {
                 IsBodyHtml = true,
@@ -160,6 +165,34 @@ namespace C_Sharp
             mailClient.Dispose();
             WriteDebuggLog("Reach at the end of Code" + Environment.NewLine + "===================================================================");
             return 0;
+        }
+
+        private static List<string> ReadXMLFileToEmails(string pathXMLFile)
+        {
+            List<string> listOfEmails = new List<string>();
+            // Start with XmlReader object  
+            //here, we try to setup Stream between the XML file nad xmlReader  
+            using (XmlReader reader = XmlReader.Create(pathXMLFile))
+            {
+                while (reader.Read())
+                {
+                    if (reader.IsStartElement())
+                    {
+                        //return only when you have START tag  
+                        switch (reader.Name.ToString())
+                        {
+                            case "Name":
+                                Console.WriteLine("Name of the Element is : " + reader.ReadString());
+                                break;
+                            case "Location":
+                                Console.WriteLine("Your Location is : " + reader.ReadString());
+                                break;
+                        }
+                    }
+                    Console.WriteLine("");
+                }
+            }
+            return listOfEmails;
         }
 
         private static string AddHTMLSpaces(int count)
