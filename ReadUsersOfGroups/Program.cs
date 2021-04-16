@@ -18,8 +18,8 @@ namespace ConsoleApp4ReadGroups
 
         static void Main(string[] args)
         {
-            string roamingFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.None);
-            string appPath = Path.Combine(roamingFolderPath, "VisualSVNHook\\");
+            string commonApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData, Environment.SpecialFolderOption.None);
+            string appPath = Path.Combine(commonApplicationData, "VisualSVNHook\\");
 
             listOfSystemGroups = ExtractNameOfGroups();
 
@@ -46,6 +46,11 @@ namespace ConsoleApp4ReadGroups
 
             foreach (var groupName in listOfGroupsUsers)
             {
+                if (groupName.groupName.Contains("$"))
+                {
+                    continue;
+                }
+
                 //textWriter.WriteStartElement("Groups");
                 string groupWithoutSpaces = groupName.groupName.Replace(" ", string.Empty);
                 textWriter.WriteStartElement(groupWithoutSpaces);
