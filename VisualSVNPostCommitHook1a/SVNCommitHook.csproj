@@ -52,6 +52,9 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Settings.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="svnnotification.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

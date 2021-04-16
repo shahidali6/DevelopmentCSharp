@@ -25,10 +25,16 @@ namespace C_Sharp
         private static readonly string addedIcon = "<span style=\"color: green;\">&#10004;</span>";
         private static readonly string deletedIcon = "<span style=\"color: red;\">&#10006;</span>";
         private static readonly string modifiedIcon = "<span style=\"color: orange;\">&#9888;</span>";
+        private static readonly string emailsXML = "Settings.xml";
 
         private static int Main(string[] args)
         {
-            ReadXMLFileToEmails();
+            //Copy template file before executing
+            string executablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            File.Copy(Path.Combine(executablePath, emailsXML), Path.Combine(CommonFolderPath(), emailsXML), true);
+
+            var listOfEmails = ReadXMLFileToEmails(Path.Combine(CommonFolderPath(), emailsXML));
 
             WriteDebuggLog("Path: " + svnpath);
 
@@ -118,11 +124,9 @@ namespace C_Sharp
             WriteDebuggLog("Repository Name: " + repositoryName);
 
             //Copy template file before executing
-            string sourcePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
             string emailTemplateName = "svnnotification.html";
 
-            File.Copy(Path.Combine(sourcePath, emailTemplateName), Path.Combine(CommonFolderPath(), emailTemplateName), true);
+            File.Copy(Path.Combine(executablePath, emailTemplateName), Path.Combine(CommonFolderPath(), emailTemplateName), true);
 
             //Get the email template and fill it in. This template can be anywhere, and can be a .HTML file
             //for more control over the structure.
@@ -136,7 +140,6 @@ namespace C_Sharp
             //using an HTML template.
             string subject = string.Format("[SVN Notification] Repo: {0} - Rev. {1}",repositoryName, args[1]);
 
-            ReadXMLFileToEmails();
             MailMessage mm = new MailMessage("mossadmin240@powersoft19.com", "msaddique@powersoft19.com")
             {
                 IsBodyHtml = true,
@@ -181,10 +184,10 @@ namespace C_Sharp
                         //return only when you have START tag  
                         switch (reader.Name.ToString())
                         {
-                            case "Name":
+                            case "Administrators":
                                 Console.WriteLine("Name of the Element is : " + reader.ReadString());
                                 break;
-                            case "Location":
+                            case "User":
                                 Console.WriteLine("Your Location is : " + reader.ReadString());
                                 break;
                         }
