@@ -29,7 +29,7 @@ namespace ConsoleApp4RemoveNumbersFromString
                                                   .OrderBy(f => f.LastWriteTime)
                                                   .ToList();
 
-            string fileNameToRemove = sortedFiles[0].Name.ToString().Replace("1.pdf", string.Empty);
+            string fileNameToRemove = sortedFiles[0].Name.ToString().Replace("1.pdf", string.Empty);          
 
             var readTextFile = File.ReadAllLines(Path.Combine(executingPath, fileNamePath));
             string requestedFileName = string.Empty;
@@ -65,6 +65,25 @@ namespace ConsoleApp4RemoveNumbersFromString
             }
 
             File.WriteAllLines(fileNamePathNew, listOfPDFfilesModifiedName.ToArray(), Encoding.UTF8);
+
+            string newDirectoryPath = Path.Combine(executingPath, "PDFFilesNewNames");
+            if (!Directory.Exists(newDirectoryPath))
+            {
+                Directory.CreateDirectory(newDirectoryPath);
+            }            
+
+            for (int i = 0; i < sortedFiles.Count; i++)
+            {
+                string destinationFileName = listOfPDFfilesModifiedName[i]+".pdf";
+                string checkFilePath = Path.Combine(newDirectoryPath, destinationFileName);
+
+                if (File.Exists(checkFilePath))
+                {
+                    destinationFileName = "_"+listOfPDFfilesModifiedName[i] + ".pdf";
+                }
+
+                File.Copy(sortedFiles[i].FullName, Path.Combine(newDirectoryPath, destinationFileName.Trim()));
+            }
         }
         public static string RemoveDigitsAndInavalid(string key)
         {
