@@ -6,119 +6,64 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace ConsoleApp6ReadWriteXML
+namespace ReadWriteXMLSMS
 {
     class Program
     {
+        //string allSMS = "allsms";
+        //string allSMSCountAttribute = "count";
+        //string sMS = "sms";
+        //string sMSAddressAttribute = "address";
+        //string sMSTimeAttribute = "time";
+        //string sMSDateAttribute = "date";
+        //string sMSTypeAttribute = "type";
+        //string sMSBodyAttribute = "body";
+        //string sMSReadAttribute = "read";
+        //string sMSService_CenterAttribute = "service_center";
+        //string sMSNameAttribute = "name";
         static void Main(string[] args)
         {
-            string xmlReadFilePath = @"C:\Users\msaddique\Documents\sms_20210325112528.xml";
-            string xmlWriteFilePath = @"C:\Users\msaddique\Documents\smsWrite_20210325112528.xml";
-            string csvWriteFilePath = @"C:\Users\msaddique\Documents\sms_20210325112528.csv";
-            string specialWriteFilePath = @"C:\Users\msaddique\Documents\sms_20210325112528.txt";
+            string fileName = "sms_20210515084044_8558";
+            string xmlReadFilePath = @"C:\Users\Shahid\Downloads\"+fileName+".xml";
+            string xmlWriteFilePath = @"C:\Users\Shahid\Downloads\"+fileName+"_Write.xml";
+            string csvWriteFilePath = @"C:\Users\Shahid\Downloads\" + fileName + ".csv";
+            string specialWriteFilePath = @"C:\Users\Shahid\Downloads\" + fileName + ".txt";
             string delimiter = "|";
 
-            List<string> listAddress = new List<string>();
-            List<string> listTime = new List<string>();
-            List<string> listDate = new List<string>();
-            List<string> listType = new List<string>();
-            List<string> listBody = new List<string>();
-            List<string> listRead = new List<string>();
-            List<string> listServiceCenter = new List<string>();
-            List<string> listName = new List<string>();
-            List<string> listSpecial = new List<string>();
+            List<XMLAttributeStruct> listMain = new List<XMLAttributeStruct>();
 
-            string writeAllSMS = "allsms";
-            string writeAllSMSCountAttribute = "count";
-            string writeSMS = "sms";
-            string writeSMSAddressAttribute = "address";
-            string writeSMSTimeAttribute = "time";
-            string writeSMSDateAttribute = "date";
-            string writeSMSTypeAttribute = "type";
-            string writeSMSBodyAttribute = "body";
-            string writeSMSReadAttribute = "read";
-            string writeSMSService_CenterAttribute = "service_center";
-            string writeSMSNameAttribute = "name";
+            listMain = ReadXMLFileOfSMS(xmlReadFilePath, false);
 
-            using (XmlReader xmlReader = XmlReader.Create(xmlReadFilePath))
-            {
-                while (xmlReader.Read())
-                {
-                    if (xmlReader.NodeType == XmlNodeType.Element)
-                    {
-                        if (xmlReader.AttributeCount > 5)
-                        {
+            bool status = WriteXMLFileOfSMS(xmlWriteFilePath, listMain);
 
-                            if (string.IsNullOrEmpty(xmlReader.GetAttribute(AttributeSequence.address.ToString())) ||
-                                string.IsNullOrEmpty(xmlReader.GetAttribute(AttributeSequence.time.ToString())) ||
-                                string.IsNullOrEmpty(xmlReader.GetAttribute(AttributeSequence.date.ToString())) ||
-                                string.IsNullOrEmpty(xmlReader.GetAttribute(AttributeSequence.body.ToString())))
-                            {
-                                continue;
-                            }
+            //var listDistinct = listBody.Distinct().ToList();
 
-                            for (int i = 0; i < xmlReader.AttributeCount; i++)
-                            {
+            //using (StreamWriter sr = new StreamWriter(csvWriteFilePath))
+            //{
+            //    foreach (var item in listDistinct)
+            //    {
+            //        //sr.WriteLine(item + delimiter + listAddress.Where(s => s.Contains(item)).Count());
+            //        sr.WriteLine(item + delimiter + CountValueinList(listBody, item));
+            //    }
+            //}
 
+            //string textFile = @"C:\Users\msaddique\Documents\sms_20210325112528.xml";
+            //string textFileForList = @"C:\Users\msaddique\Documents\ListLines.txt";
+            //// Read a text file line by line.  
+            //string allString = File.ReadAllText(textFile);
+            //List<string> listToRemove = new List<string>();
 
-                                switch (i)
-                                {
-                                    case 0:
-                                        listAddress.Add(xmlReader.GetAttribute(i).Trim());
-                                        if (xmlReader.GetAttribute(i) == "321")
-                                        {
-                                            listSpecial.Add(xmlReader.GetAttribute(i).Trim());
-                                        }
-                                        //Console.WriteLine("Address: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 1:
-                                        listTime.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Time: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 2:
-                                        listDate.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Date: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 3:
-                                        listType.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Type: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 4:
-                                        listBody.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Body: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 5:
-                                        listRead.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Read: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 6:
-                                        listServiceCenter.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Service Center: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    case 7:
-                                        listName.Add(xmlReader.GetAttribute(i).Trim());
-                                        //Console.WriteLine("Name: " + xmlReader.GetAttribute(i));
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                        }
-                    }
-                }
+            //listToRemove = File.ReadAllLines(textFileForList).ToList();
 
+            //foreach (var item in listToRemove)
+            //{
+            //    allString = allString.Replace(item, string.Empty);
+            //}
+            //File.WriteAllText(@"C:\Users\msaddique\Documents\sms1_20210325112528.xml", allString);
+        }
 
-                while (xmlReader.Read())
-                {
-                    //Console.WriteLine("Name: " + xmlReader.Name + " Value: " + xmlReader.Value);
-
-                    if (xmlReader.IsStartElement())
-                    {
-                        //Console.WriteLine(xmlReader.Name);
-                    }
-                }
-            }
-
+        private static bool WriteXMLFileOfSMS(string xmlWriteFilePath, List<XMLAttributeStruct> listMain)
+        {
             XmlTextWriter xmlWriter = new XmlTextWriter(xmlWriteFilePath, Encoding.UTF8);
             xmlWriter.Formatting = Formatting.Indented;
 
@@ -126,63 +71,104 @@ namespace ConsoleApp6ReadWriteXML
             xmlWriter.WriteStartDocument();
 
             // Write first element  
-            xmlWriter.WriteStartElement(writeAllSMS);
-            xmlWriter.WriteAttributeString(writeAllSMSCountAttribute, listAddress.Count.ToString());
+            xmlWriter.WriteStartElement(XMLAttribute.allsms.ToString());
+            xmlWriter.WriteAttributeString(XMLAttribute.count.ToString(), listMain.Count.ToString());
 
-            for (int i = 0; i < listAddress.Count; i++)
+            for (int i = 0; i < listMain.Count; i++)
             {
-                xmlWriter.WriteStartElement(writeSMS);
-
-                xmlWriter.WriteAttributeString(writeSMSAddressAttribute, listAddress[i]);
-                xmlWriter.WriteAttributeString(writeSMSTimeAttribute, listTime[i]);
-                xmlWriter.WriteAttributeString(writeSMSDateAttribute, listDate[i]);
-                xmlWriter.WriteAttributeString(writeSMSTypeAttribute, listType[i]);
-                xmlWriter.WriteAttributeString(writeSMSBodyAttribute, listBody[i]);
-                xmlWriter.WriteAttributeString(writeSMSReadAttribute, listRead[i]);
-                xmlWriter.WriteAttributeString(writeSMSService_CenterAttribute, listServiceCenter[i]);
-                xmlWriter.WriteAttributeString(writeSMSNameAttribute, listName[i]);
+                xmlWriter.WriteStartElement(XMLAttribute.sms.ToString());
+                xmlWriter.WriteAttributeString(XMLAttribute.address.ToString(), listMain[i].address);
+                xmlWriter.WriteAttributeString(XMLAttribute.time.ToString(), listMain[i].time);
+                xmlWriter.WriteAttributeString(XMLAttribute.date.ToString(), listMain[i].date);
+                xmlWriter.WriteAttributeString(XMLAttribute.type.ToString(), listMain[i].type);
+                xmlWriter.WriteAttributeString(XMLAttribute.body.ToString(), listMain[i].body);
+                xmlWriter.WriteAttributeString(XMLAttribute.read.ToString(), listMain[i].read);
+                xmlWriter.WriteAttributeString(XMLAttribute.service_center.ToString(), listMain[i].service_center);
+                xmlWriter.WriteAttributeString(XMLAttribute.name.ToString(), listMain[i].name);
                 xmlWriter.WriteEndElement();
             }
 
             xmlWriter.WriteEndElement();
+            //Write End document
             xmlWriter.WriteEndDocument();
+            //Close Writer instance
             xmlWriter.Close();
+            return true;
+        }
 
-            var listDistinct = listBody.Distinct().ToList();
-
-            using (StreamWriter sr = new StreamWriter(csvWriteFilePath))
+        private static List<XMLAttributeStruct> ReadXMLFileOfSMS(string xmlReadFilePath, bool debuglog)
+        {
+            List<XMLAttributeStruct> listMain = new List<XMLAttributeStruct>();
+            using (XmlReader xmlReader = XmlReader.Create(xmlReadFilePath))
             {
-                foreach (var item in listDistinct)
+                while (xmlReader.Read())
                 {
-                    //sr.WriteLine(item + delimiter + listAddress.Where(s => s.Contains(item)).Count());
-                    sr.WriteLine(item + delimiter + CountValueinList(listBody, item));
+                    if (xmlReader.NodeType == XmlNodeType.Element)
+                    {
+                        if (xmlReader.AttributeCount == 8)
+                        {
+                            if (string.IsNullOrEmpty(xmlReader.GetAttribute(XMLAttribute.address.ToString())) ||
+                                string.IsNullOrEmpty(xmlReader.GetAttribute(XMLAttribute.time.ToString())) ||
+                                string.IsNullOrEmpty(xmlReader.GetAttribute(XMLAttribute.date.ToString())) ||
+                                string.IsNullOrEmpty(xmlReader.GetAttribute(XMLAttribute.body.ToString())))
+                            {
+                                continue;
+                            }
+                            XMLAttributeStruct xmlStruct = new XMLAttributeStruct();
+                            for (int i = 0; i < xmlReader.AttributeCount; i++)
+                            {
+                                switch (i)
+                                {
+                                    case 0:
+                                        xmlStruct.address = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Address: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 1:
+                                        xmlStruct.time = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Time: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 2:
+                                        xmlStruct.date = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Date: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 3:
+                                        xmlStruct.type = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Type: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 4:
+                                        xmlStruct.body = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Body: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 5:
+                                        xmlStruct.read = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Read: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 6:
+                                        xmlStruct.service_center = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Service Center: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    case 7:
+                                        xmlStruct.name = xmlReader.GetAttribute(i).Trim();
+                                        if (debuglog)
+                                            Console.WriteLine("Name: " + xmlReader.GetAttribute(i));
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            listMain.Add(xmlStruct);
+                        }
+                    }
                 }
             }
-
-            string textFile = @"C:\Users\msaddique\Documents\sms_20210325112528.xml";
-            string textFileForList = @"C:\Users\msaddique\Documents\ListLines.txt";
-            // Read a text file line by line.  
-            string allString = File.ReadAllText(textFile);
-            List<string> listToRemove = new List<string>();
-
-            listToRemove = File.ReadAllLines(textFileForList).ToList();
-
-            foreach (var item in listToRemove)
-            {
-                allString = allString.Replace(item, string.Empty);
-            }
-            File.WriteAllText(@"C:\Users\msaddique\Documents\sms1_20210325112528.xml", allString);
-
-
-            using (StreamWriter sw = new StreamWriter(specialWriteFilePath))
-            {
-                foreach (var item in listSpecial)
-                {
-                    sw.WriteLine(item);
-                }
-            }
-
-            //Console.ReadLine();
+            return listMain;
         }
 
         public static int CountValueinList(List<string> listToCheck, string valueToCheck)
@@ -198,7 +184,7 @@ namespace ConsoleApp6ReadWriteXML
             return count;
         }
     }
-    public enum AttributeSequence
+    public enum XMLAttribute
     {
         address,
         time,
@@ -207,6 +193,20 @@ namespace ConsoleApp6ReadWriteXML
         body,
         read,
         service_center,
-        name
+        name,
+        allsms,
+        count,
+        sms
+    }
+    public struct XMLAttributeStruct
+    {
+        public string address;
+        public string time;
+        public string date;
+        public string type;
+        public string body;
+        public string read;
+        public string service_center;
+        public string name;
     }
 }
