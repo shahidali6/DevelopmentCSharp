@@ -351,3 +351,5 @@ MigrationBackup/
 /RemoveNumbersFromStringv1a/Working/SplittedPDFs
 /ReadNameAndRenameAccordingToExcel/Working/SplittedPDFs
 /VisualSVNPostCommitHook1a/Settings.xml
+*.pdf
+/ReadWriteXMLSMS/ConsoleApp6ReadWriteXMLSMS.sln
