@@ -26,7 +26,7 @@ namespace ConsoleApp4ReadGroups
                 }
 
                 listOfGroupsUsers.groupName = group;
-                listOfGroupsUsers.listOfUsers = listOfMembersOnly;
+                listOfGroupsUsers.listOfGroupUsers = listOfMembersOnly;
 
                 listOfGroupsUsersInternal.Add(listOfGroupsUsers);
             }
