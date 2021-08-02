@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsoleApp4ReadGroups")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Hook Generator for Visual SVN Server")]
+[assembly: AssemblyDescription("Generates as per permissions of Visual SVN Server")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConsoleApp4ReadGroups")]
+[assembly: AssemblyProduct("Hook Generator")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
