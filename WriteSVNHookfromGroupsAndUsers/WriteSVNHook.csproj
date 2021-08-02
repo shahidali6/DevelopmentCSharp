@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9D7DBB58-D890-4BD3-B4BA-8096799C1725}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ConsoleApp4ReadGroups</RootNamespace>
-    <AssemblyName>ConsoleApp4ReadGroups</AssemblyName>
+    <RootNamespace>HookGenerator</RootNamespace>
+    <AssemblyName>HookGenerator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
