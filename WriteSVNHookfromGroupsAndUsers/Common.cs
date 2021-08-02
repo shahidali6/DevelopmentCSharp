@@ -356,7 +356,7 @@ namespace ConsoleApp4ReadGroups
         {
             try
             {
-                List<ProjectData> projectsData = File.ReadAllLines(fileAndPath).Skip(3).Select(v => ProjectData.FromCsv(v)).ToList();
+                List<ProjectData> projectsData = File.ReadAllLines(fileAndPath).Skip(1).Select(v => ProjectData.FromCsv(v)).ToList();
 
                 List<string> distinct_companies = projectsData.Select(t => t.Comapny).Distinct().ToList();
                 List<Company> lstCompany = new List<Company>();
