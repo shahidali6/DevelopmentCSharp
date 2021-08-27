@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml;
 
 namespace ConsoleApp4ReadGroups
@@ -362,6 +363,8 @@ namespace ConsoleApp4ReadGroups
                 List<Company> lstCompany = new List<Company>();
                 foreach (String company in distinct_companies)
                 {
+                    if (company.Contains("*"))
+                        continue;
                     List<string> distinct_projects = projectsData.Where(t => t.Comapny == company).Select(t => t.Projects).Distinct().ToList();
                     List<projects> lstProject = new List<projects>();
                     foreach (string project in distinct_projects)
@@ -381,7 +384,7 @@ namespace ConsoleApp4ReadGroups
             }
             catch (Exception ex)
             {
-                //return "Something went wrong!";
+                MessageBox.Show("Exception: " + ex, "Error in application", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 return null; ;
             }
