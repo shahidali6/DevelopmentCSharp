@@ -22,11 +22,11 @@ namespace ConsoleApp4ReadGroups
                 string visualSVNServerHookPath = "\"%VISUALSVN_SERVER%\\bin\\VisualSVNServerHooks.exe\"";
                 string commitNotification = "    commit-notification \"%1\" -r %2";
                 string filterKeyword = "    --filter ";
-                string smtpKeyword = " --smtp-server ";
-                string smtpServerAddress = "mail.powersoft19.com";
+                string smtpKeyword = "    --smtp-server ";
+                string smtpServerAddress = "mail2.powersoft19.com";
                 string fromKeyword = "    --from ";
-                string toKeyword = " --to ";
-                string noDifferenceKeyword = " --no-diffs ";
+                string toKeyword = "    --to ";
+                string noDifferenceKeyword = "    --no-diffs";
                 string fromEmail = "mossadmin240@powersoft19.com";
                 string semiColon = ";";
                 string powerDomain = "POWER\\";
@@ -90,8 +90,14 @@ namespace ConsoleApp4ReadGroups
 
                             sw.WriteLine(visualSVNServerHookPath + lineTerminaltor);
                             sw.WriteLine(commitNotification + lineTerminaltor);
-                            sw.WriteLine(fromKeyword + fromEmail + toKeyword + emailList + lineTerminaltor);
-                            sw.WriteLine(filterKeyword + project.project_name + smtpKeyword + smtpServerAddress + noDifferenceKeyword + Environment.NewLine);
+                            sw.WriteLine(fromKeyword + fromEmail + lineTerminaltor);
+                            sw.WriteLine(toKeyword + emailList + lineTerminaltor);
+                            if (project.project_name != "\"/\"")
+                            {
+                                sw.WriteLine(filterKeyword + project.project_name + lineTerminaltor);
+                            }
+                            sw.WriteLine(smtpKeyword + smtpServerAddress + lineTerminaltor);
+                            sw.WriteLine(noDifferenceKeyword + lineTerminaltor + Environment.NewLine);
                         }
                     }
                 }
