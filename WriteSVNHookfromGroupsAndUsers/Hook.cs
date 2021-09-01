@@ -20,14 +20,14 @@ namespace ConsoleApp4ReadGroups
 
                 string lineTerminaltor = " ^";
                 string visualSVNServerHookPath = "\"%VISUALSVN_SERVER%\\bin\\VisualSVNServerHooks.exe\"";
-                string commitNotification = "    commit-notification \"%1\" -r %2";
-                string filterKeyword = "    --filter ";
-                string smtpKeyword = "    --smtp-server ";
+                string commitNotification = "   commit-notification \"%1\" -r %2";
+                string filterKeyword = "   --filter ";
+                string smtpKeyword = "   --smtp-server ";
                 string smtpServerAddress = "mail2.powersoft19.com";
-                string fromKeyword = "    --from ";
-                string toKeyword = "    --to ";
-                string noDifferenceKeyword = "    --no-diffs";
-                string fromEmail = "mossadmin240@powersoft19.com";
+                string fromKeyword = "   --from ";
+                string toKeyword = " --to ";
+                string noDifferenceKeyword = "   --no-diffs";
+                string fromEmail = "\"mossadmin240@powersoft19.com\"";
                 string semiColon = ";";
                 string powerDomain = "POWER\\";
                 string powersoft19Dotcom = "@powersoft19.com";
@@ -88,10 +88,11 @@ namespace ConsoleApp4ReadGroups
                                 }
                             }
 
+                            emailList = emailList.Remove(emailList.Length - 1, 1);
+
                             sw.WriteLine(visualSVNServerHookPath + lineTerminaltor);
                             sw.WriteLine(commitNotification + lineTerminaltor);
-                            sw.WriteLine(fromKeyword + fromEmail + lineTerminaltor);
-                            sw.WriteLine(toKeyword + emailList + lineTerminaltor);
+                            sw.WriteLine(fromKeyword + fromEmail + toKeyword + "\""+ emailList +"\""+ lineTerminaltor);
                             if (project.project_name != "\"/\"")
                             {
                                 sw.WriteLine(filterKeyword + project.project_name + lineTerminaltor);
