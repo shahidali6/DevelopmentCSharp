@@ -98,7 +98,7 @@ namespace ConsoleApp4ReadGroups
                                 sw.WriteLine(filterKeyword + project.project_name + lineTerminaltor);
                             }
                             sw.WriteLine(smtpKeyword + smtpServerAddress + lineTerminaltor);
-                            sw.WriteLine(noDifferenceKeyword + lineTerminaltor + Environment.NewLine);
+                            sw.WriteLine(noDifferenceKeyword + Environment.NewLine);
                         }
                     }
                 }
