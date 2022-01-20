@@ -92,7 +92,7 @@ namespace ConsoleApp4RemoveNumbersFromString
             key = Regex.Replace(key, @"\d", string.Empty);
             foreach (var item in tempp)
             {
-                key = key.Replace(item.ToString(), string.Empty);
+                key = key.Replace(item.ToString(), string.Empty).Trim();
             }
             return key;
         }
