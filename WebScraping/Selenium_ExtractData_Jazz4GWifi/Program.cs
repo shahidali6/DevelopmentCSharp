@@ -39,23 +39,29 @@ namespace Selenium_ExtractData_Jazz4GWifi
             int loopEnd = 0;
             while (nextFound)
             {
+                //Search whole table
                 var table = driver.FindElements(By.XPath(xPathTableRows));
 
+                //HTML table to string
                 HTMLTableToStringList(table, ref listOfItems);
                 try
                 {
+                    //Get the total pages number
                     var returnnn = driver.FindElement(By.XPath(xPathTotalPages)).Text;
 
+                    //Splitted current and total pages to get current state
                     var result = returnnn.Split('/');
                     if (result[0] == result[1])
                         nextFound = false;
 
+                    //find next page link and click on it
                     driver.FindElement(By.XPath(xPathNextPage)).Click();
                 }
                 catch (Exception)
                 {
                     nextFound = false;
                 }
+                //Delay to refresh the page
                 Thread.Sleep(1000);
             }
             //WriteCSVFileUsingStringList(fileName, listOfItems);
