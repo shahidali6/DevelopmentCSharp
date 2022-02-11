@@ -22,15 +22,14 @@ namespace Selenium_ExtractData_Jazz4GWifi
             string xPathLoginButton = "//*[@id=\"pop_login\"]";
             try
             {
+                //if elements found that will fine if not it will also fine
                 driver.FindElement(By.XPath(xPathUserName)).SendKeys(userName);
                 driver.FindElement(By.XPath(xPathPassword)).SendKeys(password);
                 driver.FindElement(By.XPath(xPathLoginButton)).Click();
+                //Delay for refresh
                 Thread.Sleep(1000);
             }
-            catch (Exception)
-            {
-
-            }
+            catch (Exception) { }
         }
     }
 }
