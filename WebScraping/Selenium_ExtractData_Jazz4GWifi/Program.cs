@@ -13,6 +13,7 @@ namespace Selenium_ExtractData_Jazz4GWifi
     {
         static IWebDriver driver = new ChromeDriver();
         static string fileName = "SMSJazz4G.csv";
+        static bool messageSelected = false;
         static void Main(string[] args)
         {
             //XPATHs for data extraction
@@ -29,12 +30,14 @@ namespace Selenium_ExtractData_Jazz4GWifi
             driver.FindElement(By.XPath(xPathSMSButton)).Click();
             Thread.Sleep(1000);
 
-           Common.LoginJazz4GPortal(driver);
+            Common.LoginJazz4GPortal(driver);
 
             File.Delete(fileName);
             bool nextFound = true;
-            var listOfItems = new List<string>();
+            var listOfAllItems = new List<string>();
             var listOfItemsCSV = new List<string>();
+            var listOfTableItems = new List<string>();
+
 
             int loopEnd = 0;
             while (nextFound)
@@ -43,7 +46,20 @@ namespace Selenium_ExtractData_Jazz4GWifi
                 var table = driver.FindElements(By.XPath(xPathTableRows));
 
                 //HTML table to string
-                HTMLTableToStringList(table, ref listOfItems);
+                HTMLTableToStringList(table, out listOfTableItems);
+                //listOfTableItems.Clear();
+                foreach (var item in listOfTableItems)
+                {
+                    listOfAllItems.Add(item);
+                }
+                SelectMessageToBeDeleted("message.txt", ref listOfTableItems);
+
+                if (messageSelected)
+                {
+                    DeleteSelectedMessage();
+                    messageSelected = false;
+                }
+                listOfTableItems.Clear();
                 try
                 {
                     //Get the total pages number
@@ -66,7 +82,7 @@ namespace Selenium_ExtractData_Jazz4GWifi
             }
             //WriteCSVFileUsingStringList(fileName, listOfItems);
             string CSVRow = string.Empty;
-            for (int i = 1; i < listOfItems.Count; i++)
+            for (int i = 1; i < listOfAllItems.Count; i++)
             {
                 if ((i % 4) == 0)
                 {
@@ -75,26 +91,83 @@ namespace Selenium_ExtractData_Jazz4GWifi
                 }
                 else
                 {
-                    CSVRow += listOfItems[i] + ",";
+                    CSVRow += listOfAllItems[i] + ",";
                 }
             }
             WriteCSVFileUsingStringList("csv" + fileName, listOfItemsCSV);
             driver.Close();
         }
-        private static void HTMLTableToStringList(ReadOnlyCollection<IWebElement> table, ref List<string> listOfItems)
+
+        private static void SelectMessageToBeDeleted(string fileName, ref List<string> listOfItems)
         {
+            var allLines = File.ReadAllLines(fileName);
+
+            int lineNumberFinder = 0;
+            foreach (string item in listOfItems)
+            {
+                lineNumberFinder++;
+                foreach (var line in allLines)
+                {
+                    if (item.Contains(line))
+                    {
+                        int lineNumer = GetLineNumber(lineNumberFinder);
+                        selectmessageCheckBox(lineNumer);
+                        messageSelected = true;
+                    }
+                }
+            }
+        }
+
+        private static int GetLineNumber(int lineNumberFinder)
+        {
+            int lineNumber = (lineNumberFinder + 1) / 4;
+            //if (lineNumber>20)
+            //{
+            //    lineNumber = lineNumber % 20;
+            //}
+            return lineNumber;
+        }
+
+        private static void selectmessageCheckBox(int lineNumber)
+        {
+            lineNumber += 1;
+            string xPathCheckBoxofMessage = "//*[@id=\"sms_table\"]/tbody/tr[" + lineNumber + "]/td[1]/input";
+            Thread.Sleep(1000);
+            driver.FindElement(By.XPath(xPathCheckBoxofMessage)).Click();
+            Thread.Sleep(1000);
+        }
+
+        private static void DeleteSelectedMessage()
+        {
+            //*[@id="pop_confirm"]
+            string xPathDeleteConfirm = "//*[@id=\"pop_confirm\"]";
+            string xPathDeleteButton = "//*[@id=\"del_msg_btn\"]";
+            driver.FindElement(By.XPath(xPathDeleteButton)).Click();
+            Thread.Sleep(1000);
+            driver.FindElement(By.XPath(xPathDeleteConfirm)).Click();
+            Thread.Sleep(5000);
+        }
+
+        private static void HTMLTableToStringList(ReadOnlyCollection<IWebElement> table, out List<string> listOfItems)
+        {
+            var listOfItemsInternal = new List<string>();
             foreach (var item in table)
             {
                 string itemString = string.Empty;
                 itemString = item.Text;
                 itemString = RemoveNewLinesAndMultipleSpaces(itemString);
-                listOfItems.Add(itemString);
+                listOfItemsInternal.Add(itemString);
             }
+            listOfItems = listOfItemsInternal;
         }
 
         private static void WriteCSVFileUsingStringList(string fileName, List<string> listOfItems)
         {
-            File.AppendAllLines(fileName, listOfItems);
+            if (File.Exists(fileName))
+            {
+                File.Delete(fileName);
+            }
+            File.AppendAllLines(fileName, listOfItems, System.Text.Encoding.UTF8);
         }
 
         private static string RemoveNewLinesAndMultipleSpaces(string itemString)
