@@ -94,7 +94,7 @@ namespace Selenium_ExtractData_Jazz4GWifi
                     CSVRow += listOfAllItems[i] + ",";
                 }
             }
-            WriteCSVFileUsingStringList("csv" + fileName, listOfItemsCSV);
+            WriteCSVFileUsingStringList(fileName, listOfItemsCSV);
             driver.Close();
         }
 
