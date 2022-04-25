@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
-namespace ConsoleApp4ReadGroups
+namespace SVNHookGenerator
 {
     public struct GroupStructure
     {
