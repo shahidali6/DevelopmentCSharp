@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace ConsoleApp4ReadGroups
+namespace SVNHookGenerator
 {
     class Program
     {
@@ -21,13 +21,17 @@ namespace ConsoleApp4ReadGroups
             string postHookFilename = "post-commit.cmd";
             string csvFilename = "AccessReport.csv";
 
-            string roamingFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.None);
-            string appPath = Path.Combine(roamingFolderPath, "VisualSVNHook\\");
+            ApplicationSettings applicationSettings = new ApplicationSettings();
+            applicationSettings.Settingsfile = xMLFileName; 
+            applicationSettings.PostHookfileName = postHookFilename;            
+            applicationSettings.AccessCSVFileName = csvFilename;
+            applicationSettings.AplicationDirectory = Directory.GetCurrentDirectory();
+            applicationSettings.RepositoriesPath = String.Empty;
 
-            Hook hook = new Hook();
+            SVNHook hook = new SVNHook();
             ReferenceTaswar referenceTaswar = new ReferenceTaswar();
 
-            var structureResult =  referenceTaswar.Function(@"F:\AccessReport.csv");
+            var structureResult =  referenceTaswar.Function(Path.Combine(applicationSettings.AplicationDirectory, csvFilename));
 
             bool status = hook.WriteHookFile(structureResult, appPath + xMLFileName, appPath + postHookFilename);
 
