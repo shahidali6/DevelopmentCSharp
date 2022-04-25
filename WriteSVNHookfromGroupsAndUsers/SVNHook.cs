@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp4ReadGroups
+namespace SVNHookGenerator
 {
-    class Hook
+    class SVNHook
     {
         public bool WriteHookFile(List<Company> listToReturn, string xMLFileName, string postHookFilename)
         {
@@ -33,7 +33,6 @@ namespace ConsoleApp4ReadGroups
                 string powersoft19Dotcom = "@powersoft19.com";
                 string[] mustEmailAddress = { "asadiq@powersoft19.com", "msaddique@powersoft19.com" };
 
-
                 string hookFile = "hookFile.txt";
                 string commitFile = "post-commit.cmd";
 
@@ -49,7 +48,6 @@ namespace ConsoleApp4ReadGroups
                 //combine both arrays to list
 
                 listOfAllInvalidChars = Path.GetInvalidPathChars().Concat(Path.GetInvalidFileNameChars()).Distinct().ToList();
-
 
                 foreach (var company in listToReturn)
                 {
@@ -106,7 +104,6 @@ namespace ConsoleApp4ReadGroups
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
