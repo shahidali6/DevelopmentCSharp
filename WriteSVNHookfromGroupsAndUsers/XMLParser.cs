@@ -1,88 +1,71 @@
 ﻿using System;
-using System.Collections;
-using System.Data;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace SVNHookGenerator
 {
-	internal class XMLParser
-	{
-		public void Save_XML(Dashboard app_set)
-		{
-			FileStream flStream = new FileStream(dataFileName, FileMode.Create, FileAccess.Write);
-			try
-			{
-				XmlSerializer xmlserializer = new XmlSerializer(typeof(Dashboard));
+    internal class XMLParser
+    {
+        /// <summary>
+        /// Save Application settings in XML file
+        /// </summary>
+        /// <param name="appSettings"></param>
+        /// <param name="fileNameAndPath"></param>
+        public void SaveSettingsXMLFile(ApplicationSettings appSettings, string fileNameAndPath)
+        {
+            FileStream flStream = new FileStream(fileNameAndPath, FileMode.Create, FileAccess.Write);
+            try
+            {
+                XmlSerializer xmlserializer = new XmlSerializer(typeof(ApplicationSettings));
 
-				xmlserializer.Serialize(flStream, app_set);
+                xmlserializer.Serialize(flStream, appSettings);
 
-				flStream.Close();
-			}
-			catch (Exception ex)
-			{
-				_exhaust.exhaust_pipe_big("Save XML", ex);
-			}
-			finally
-			{
-				flStream.Close();
-			}
-		}
-		private void Load_Settings(bool isDefault)
-		{
-			string port = string.Empty;
-			int buad = 0;
+                flStream.Close();
+                Console.WriteLine("Settings file Saved successfuly!.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception in Save XML file: ", ex.Message);
+            }
+            finally
+            {
+                flStream.Close();
+            }
+        }
+        /// <summary>
+        /// Load Application settings from XML file
+        /// </summary>
+        /// <param name="fileNameAndPath"></param>
+        /// <returns></returns>
+        private ApplicationSettings LoadSettingsXMLFile(string fileNameAndPath)
+        {
+            ApplicationSettings appSettings = new ApplicationSettings();
 
-			// Add Devices.
-			
+            try
+            {
+                if (File.Exists(fileNameAndPath))
+                {
+                    FileStream flStream = new FileStream(fileNameAndPath, FileMode.Open, FileAccess.Read);
+                    XmlSerializer xmlserializer = new XmlSerializer(typeof(ApplicationSettings));
 
-			if (!isDefault)
-			{
-				if (File.Exists(dataFileName))
-				{
-					FileStream flStream = new FileStream(dataFileName, FileMode.Open, FileAccess.Read);
-					XmlSerializer xmlserializer = new XmlSerializer(typeof(Dashboard));
+                    appSettings = (ApplicationSettings)xmlserializer.Deserialize(flStream);
 
-					app_set = (Dashboard)xmlserializer.Deserialize(flStream);
-
-					flStream.Close();
-				}
-			}
-			else
-			{
-				app_set = new Dashboard();
-			}
-
-
-			string instrument_type = _m._Menu_ComboBox_Instrument.Text;
-			instrument_type = instrument_type.Replace(' ', '_');
-			if (instrument_type == Device.Wired_Gas_I.ToString()
-				)
-			{
-
-			}
-			else
-			{
-				if (app_set.Portable_Intrument_Com_Port != null)
-				{
-					port = app_set.Portable_Intrument_Com_Port;
-				}
-
-				if (app_set.Portable_Instrument_Baud_Rate != 0)
-				{
-					buad = app_set.Portable_Instrument_Baud_Rate;
-				}
-			}
-
-			for (int i = 0; i < _ConnectToComboBox.Items.Count; i++)
-			{
-				if (port == Get_Com_Port_Number(_ConnectToComboBox.Items[i].ToString()))
-				{
-					_ConnectToComboBox.SelectedIndex = i;
-					break;
-				}
-			}
-		}
-	}
+                    flStream.Close();
+                    Console.WriteLine("Application Settings load successfuly!.");
+                }
+                else
+                {
+                    appSettings = new ApplicationSettings();
+                    Console.WriteLine("Application Settings Created successfuly!.");
+                }
+                return appSettings;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception in load XML file and Application Settings reCreated successfuly!.", ex.Message);
+                appSettings = new ApplicationSettings();
+                return appSettings;
+            }   
+        }
+    }
 }
