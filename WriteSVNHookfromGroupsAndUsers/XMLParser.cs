@@ -37,7 +37,7 @@ namespace SVNHookGenerator
         /// </summary>
         /// <param name="fileNameAndPath"></param>
         /// <returns></returns>
-        private ApplicationSettings LoadSettingsXMLFile(string fileNameAndPath)
+        public ApplicationSettings LoadSettingsXMLFile(string fileNameAndPath)
         {
             ApplicationSettings appSettings = new ApplicationSettings();
 
@@ -55,8 +55,9 @@ namespace SVNHookGenerator
                 }
                 else
                 {
+                    SaveSettingsXMLFile(appSettings, fileNameAndPath);
                     appSettings = new ApplicationSettings();
-                    Console.WriteLine("Application Settings Created successfuly!.");
+                    Console.WriteLine("Application Settings Created and Saved successfuly!.");
                 }
                 return appSettings;
             }
